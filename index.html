@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Probabilidade de VBAC</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f7;
+            text-align: center;
+            padding: 30px;
+            margin: 0;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 26px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #2ecc71;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 8px;
+            display: inline-block;
+            width: auto;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+    <script>
+        function calculateVBAC() {
+            let age = parseFloat(document.getElementById('age').value) || 0;
+            let weight = parseFloat(document.getElementById('weight').value) || 0;
+            let height = parseFloat(document.getElementById('height').value) || 0;
+            let arrestDisorder = parseFloat(document.getElementById('arrestDisorder').value) || 0;
+            let prevVaginalBeforeCSection = parseFloat(document.getElementById('prevVaginalBeforeCSection').value) || 0;
+            let prevVBAC = parseFloat(document.getElementById('prevVBAC').value) || 0;
+            let hypertension = parseFloat(document.getElementById('hypertension').value) || 0;
+            let fetalStation = parseInt(document.getElementById('fetalStation').value) || 0;
+            let gestationalAge = parseFloat(document.getElementById('gestationalAge').value) || 0;
+            let cervicalDilation = parseFloat(document.getElementById('cervicalDilation').value) || 0;
+            let cervicalEffacement = parseFloat(document.getElementById('cervicalEffacement').value) || 0;
+
+            // Definindo as variáveis de estação fetal com base na escolha do plano de Lee
+            let fetalStation3 = 0, fetalStation2 = 0, fetalStation1 = 0, fetalStation0 = 0, fetalStationPlus1 = 0;
+
+            if (fetalStation === -4) {
+                fetalStation3 = 0; fetalStation2 = 0; fetalStation1 = 0; fetalStation0 = 0; fetalStationPlus1 = 0;
+            } else if (fetalStation === -3) {
+                fetalStation3 = 1; fetalStation2 = 0; fetalStation1 = 0; fetalStation0 = 0; fetalStationPlus1 = 0;
+            } else if (fetalStation === -2) {
+                fetalStation3 = 0; fetalStation2 = 1; fetalStation1 = 0; fetalStation0 = 0; fetalStationPlus1 = 0;
+            } else if (fetalStation === -1) {
+                fetalStation3 = 0; fetalStation2 = 0; fetalStation1 = 1; fetalStation0 = 0; fetalStationPlus1 = 0;
+            } else if (fetalStation === 0) {
+                fetalStation3 = 0; fetalStation2 = 0; fetalStation1 = 0; fetalStation0 = 1; fetalStationPlus1 = 0;
+            } else if (fetalStation === 1) {
+                fetalStation3 = 0; fetalStation2 = 0; fetalStation1 = 0; fetalStation0 = 0; fetalStationPlus1 = 1;
+            }
+
+            let w = -1.061 - (0.031 * age) - (0.016 * weight) + (0.054 * height) - (0.621 * arrestDisorder) +
+                    (0.885 * prevVaginalBeforeCSection) + (1.733 * prevVBAC) - (0.563 * hypertension) +
+                    (0.003 * fetalStation3) + (0.231 * fetalStation2) + (0.524 * fetalStation1) +
+                    (0.850 * fetalStation0) + (1.330 * fetalStationPlus1) - (0.140 * gestationalAge) +
+                    (0.119 * cervicalDilation) + (0.006 * cervicalEffacement);
+            
+            let probability = (Math.exp(w) / (1 + Math.exp(w))) * 100;
+            document.getElementById('result').innerText = "Probabilidade de VBAC: " + probability.toFixed(2) + "%";
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Calculadora de Probabilidade de Parto Vaginal Após Cesariana</h2>
+        <form onsubmit="event.preventDefault(); calculateVBAC();">
+            <label>Idade Materna (anos): <input type="number" id="age"></label>
+            <label>Peso no Parto (kg): <input type="number" id="weight"></label>
+            <label>Altura (cm): <input type="number" id="height"></label>
+            <label>Indicação Recorrente para Cesariana (0 ou 1): <input type="number" id="arrestDisorder"></label>
+            <label>Parto Vaginal Antes da Cesariana (0 ou 1): <input type="number" id="prevVaginalBeforeCSection"></label>
+            <label>Parto Vaginal Após Cesariana Anterior (0 ou 1): <input type="number" id="prevVBAC"></label>
+            <label>Patologia Hipertensiva da Gravidez (0 ou 1): <input type="number" id="hypertension"></label>
+            <label>Plano de Lee (Selecione um Plano): 
+                <select id="fetalStation">
+                    <option value="-4">Plano -4</option>
+                    <option value="-3">Plano -3</option>
+                    <option value="-2">Plano -2</option>
+                    <option value="-1">Plano -1</option>
+                    <option value="0">Plano 0</option>
+                    <option value="1">Plano +1</option>
+                </select>
+            </label>
+            <label>Idade Gestacional na Admissão (semanas): <input type="number" id="gestationalAge"></label>
+            <label>Dilatação Cervical (cm): <input type="number" id="cervicalDilation"></label>
+            <label>Extinção/Apagamento Cervical (%): <input type="number" id="cervicalEffacement"></label>
+            <button type="submit">Calcular</button>
+        </form>
+        <h3 id="result">Probabilidade de VBAC: </h3>
+    </div>
+</body>
+</html>
