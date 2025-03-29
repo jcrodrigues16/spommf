@@ -87,42 +87,37 @@
     </style>
     <script>
         function calculateVBAC() {
-            let age = parseFloat(document.getElementById('age').value) || 0;
-            let weight = parseFloat(document.getElementById('weight').value) || 0;
-            let height = parseFloat(document.getElementById('height').value) || 0;
-            let arrestDisorder = parseFloat(document.getElementById('arrestDisorder').value) || 0;
-            let prevVaginalBeforeCSection = parseFloat(document.getElementById('prevVaginalBeforeCSection').value) || 0;
-            let prevVBAC = parseFloat(document.getElementById('prevVBAC').value) || 0;
-            let hypertension = parseFloat(document.getElementById('hypertension').value) || 0;
-            let fetalStation = parseInt(document.getElementById('fetalStation').value) || 0;
-            let gestationalAge = parseFloat(document.getElementById('gestationalAge').value) || 0;
-            let cervicalDilation = parseFloat(document.getElementById('cervicalDilation').value) || 0;
-            let cervicalEffacement = parseFloat(document.getElementById('cervicalEffacement').value) || 0;
+            // Captura os valores dos inputs
+            let age = parseFloat(document.getElementById('age') ? document.getElementById('age').value : 0) || 0;
+            let weight = parseFloat(document.getElementById('weight') ? document.getElementById('weight').value : 0) || 0;
+            let height = parseFloat(document.getElementById('height') ? document.getElementById('height').value : 0) || 0;
+            let arrestDisorder = document.getElementById('arrestDisorder') ? document.getElementById('arrestDisorder').value === "1" ? 1 : 0 : 0;
+            let prevVaginalBeforeCSection = document.getElementById('prevVaginalBeforeCSection') ? document.getElementById('prevVaginalBeforeCSection').value === "1" ? 1 : 0 : 0;
+            let prevVBAC = document.getElementById('prevVBAC') ? document.getElementById('prevVBAC').value === "1" ? 1 : 0 : 0;
+            let hypertension = document.getElementById('hypertension') ? document.getElementById('hypertension').value === "1" ? 1 : 0 : 0;
+            let fetalStation = parseInt(document.getElementById('fetalStation') ? document.getElementById('fetalStation').value : 0) || 0;
+            let gestationalAge = parseFloat(document.getElementById('gestationalAge') ? document.getElementById('gestationalAge').value : 0) || 0;
+            let cervicalDilation = parseFloat(document.getElementById('cervicalDilation') ? document.getElementById('cervicalDilation').value : 0) || 0;
+            let cervicalEffacement = parseFloat(document.getElementById('cervicalEffacement') ? document.getElementById('cervicalEffacement').value : 0) || 0;
 
-            // Definindo as variáveis de estação fetal com base na escolha do plano de Lee
-            let fetalStation3 = 0, fetalStation2 = 0, fetalStation1 = 0, fetalStation0 = 0, fetalStationPlus1 = 0;
+            // Verifica a razão da cesariana anterior
+            let csectionReason = document.getElementById('csectionReason') ? document.getElementById('csectionReason').value : "";
+            let arrestDisorderScore = 0;
 
-            if (fetalStation === -4) {
-                fetalStation3 = 0; fetalStation2 = 0; fetalStation1 = 0; fetalStation0 = 0; fetalStationPlus1 = 0;
-            } else if (fetalStation === -3) {
-                fetalStation3 = 1; fetalStation2 = 0; fetalStation1 = 0; fetalStation0 = 0; fetalStationPlus1 = 0;
-            } else if (fetalStation === -2) {
-                fetalStation3 = 0; fetalStation2 = 1; fetalStation1 = 0; fetalStation0 = 0; fetalStationPlus1 = 0;
-            } else if (fetalStation === -1) {
-                fetalStation3 = 0; fetalStation2 = 0; fetalStation1 = 1; fetalStation0 = 0; fetalStationPlus1 = 0;
-            } else if (fetalStation === 0) {
-                fetalStation3 = 0; fetalStation2 = 0; fetalStation1 = 0; fetalStation0 = 1; fetalStationPlus1 = 0;
-            } else if (fetalStation === 1) {
-                fetalStation3 = 0; fetalStation2 = 0; fetalStation1 = 0; fetalStation0 = 0; fetalStationPlus1 = 1;
+            // Apenas as opções 'tentativa_frustrada' e 'trabalho_estacionario' pontuam como 1
+            if (csectionReason === "tentativa_frustrada" || csectionReason === "trabalho_estacionario") {
+                arrestDisorderScore = 1;
             }
 
-            let w = -1.061 - (0.031 * age) - (0.016 * weight) + (0.054 * height) - (0.621 * arrestDisorder) +
+            // Calcula o valor de 'w' usando a fórmula fornecida
+            let w = -1.061 - (0.031 * age) - (0.016 * weight) + (0.054 * height) - (0.621 * arrestDisorderScore) +
                     (0.885 * prevVaginalBeforeCSection) + (1.733 * prevVBAC) - (0.563 * hypertension) +
-                    (0.003 * fetalStation3) + (0.231 * fetalStation2) + (0.524 * fetalStation1) +
-                    (0.850 * fetalStation0) + (1.330 * fetalStationPlus1) - (0.140 * gestationalAge) +
-                    (0.119 * cervicalDilation) + (0.006 * cervicalEffacement);
-            
+                    (0.003 * fetalStation) - (0.140 * gestationalAge) + (0.119 * cervicalDilation) + (0.006 * cervicalEffacement);
+
+            // Calcula a probabilidade de VBAC
             let probability = (Math.exp(w) / (1 + Math.exp(w))) * 100;
+
+            // Exibe o resultado
             document.getElementById('result').innerText = "Probabilidade de VBAC: " + probability.toFixed(2) + "%";
         }
     </script>
@@ -132,20 +127,38 @@
         <h2>Calculadora de Probabilidade de Parto Vaginal Após Cesariana</h2>
         <form onsubmit="event.preventDefault(); calculateVBAC();">
             <label>Idade Materna (anos): <input type="number" id="age"></label>
-            <label>Peso no Parto (kg): <input type="number" id="weight"></label>
+            <label>Peso no 3ºT (kg): <input type="number" id="weight"></label>
             <label>Altura (cm): <input type="number" id="height"></label>
-            <label>Indicação Recorrente para Cesariana (0 ou 1): <input type="number" id="arrestDisorder"></label>
-            <label>Parto Vaginal Antes da Cesariana (0 ou 1): <input type="number" id="prevVaginalBeforeCSection"></label>
-            <label>Parto Vaginal Após Cesariana Anterior (0 ou 1): <input type="number" id="prevVBAC"></label>
-            <label>Patologia Hipertensiva da Gravidez (0 ou 1): <input type="number" id="hypertension"></label>
-            <label>Plano de Lee (Selecione um Plano): 
+            <label>Indicação da Cesariana Anterior:
+                <select id="csectionReason">
+                    <option value="tentativa_frustrada">Tentativa Frustrada de Indução do Trabalho de Parto</option>
+                    <option value="trabalho_estacionario">Trabalho de Parto Estacionário</option>
+                    <option value="estado_fetal">Estado Fetal Não Tranquilizador</option>
+                    <option value="apresentacao_anomala">Situação ou apresentação fetal anómala</option>
+                    <option value="patologia_materna">Patologia materna que contraindica o parto vaginal</option>
+                    <option value="anomalia_fetal">Anomalia fetal que contraindica o parto vaginal</option>
+                    <option value="patologia_gravidez">Patologia própria da gravidez</option>
+                    <option value="gravidez_multipla">Gravidez múltipla</option>
+                    <option value="outro">Outro Motivo</option>
+                </select>
+            </label>
+            <label>Parto Vaginal Antes da Cesariana:
+                <select id="prevVaginalBeforeCSection"><option value="1">Sim</option><option value="0">Não</option></select>
+            </label>
+            <label>Parto Vaginal Após Cesariana Anterior:
+                <select id="prevVBAC"><option value="1">Sim</option><option value="0">Não</option></select>
+            </label>
+            <label>Patologia Hipertensiva da Gravidez:
+                <select id="hypertension"><option value="1">Sim</option><option value="0">Não</option></select>
+            </label>
+            <label>Plano de Lee:
                 <select id="fetalStation">
-                    <option value="-4">Plano -4</option>
+                    <option value="-4">Plano -4 (Acima do I Plano ou I Plano de Hodge)</option>
                     <option value="-3">Plano -3</option>
-                    <option value="-2">Plano -2</option>
+                    <option value="-2">Plano -2 (II Plano de Hodge)</option>
                     <option value="-1">Plano -1</option>
-                    <option value="0">Plano 0</option>
-                    <option value="1">Plano +1</option>
+                    <option value="0">Plano 0 (III Plano de Hodge)</option>
+                    <option value="1">Plano +1 (IV Plano de Hodge)</option>
                 </select>
             </label>
             <label>Idade Gestacional na Admissão (semanas): <input type="number" id="gestationalAge"></label>
@@ -157,3 +170,4 @@
     </div>
 </body>
 </html>
+
